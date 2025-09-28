@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MovieListView: View {
     let genre: Genre
-    @ObservedObject var viewModel: MovieListViewModel
+    @StateObject var viewModel: MovieListViewModel
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
@@ -36,6 +36,13 @@ struct MovieListView: View {
         }
 
         return Array(repeating: GridItem(.flexible()), count: count)
+    }
+    
+    // MARK: Init
+    
+    init(genre: Genre) {
+        self.genre = genre
+        _viewModel = StateObject(wrappedValue: MovieListViewModel(genreId: genre.id))
     }
 
     // MARK: Body
@@ -72,10 +79,6 @@ struct MovieListView: View {
                     viewModel.fetchNextPage()
                 }
             )
-        }
-        .refreshable {
-            viewModel.reset()
-            viewModel.fetchNextPage()
         }
         .task {
             if viewModel.movies.isEmpty && !viewModel.isLoading {
