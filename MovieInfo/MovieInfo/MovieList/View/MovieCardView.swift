@@ -14,15 +14,14 @@ struct MovieCardView: View {
 
     var body: some View {
         VStack {
-            CachedAsyncImage(url: movie.posterURL, contentMode: .fit, cornerRadius: 8)
+            CachedAsyncImage(url: movie.posterURL)
                 .frame(height: isTV ? 300 : 200)
-                .drawingGroup()
 
             Text(movie.title)
                 .font(isTV ? .title3 : .caption)
                 .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .padding(.horizontal, 4)
+                .lineLimit(1)
+                .padding(.horizontal, .paddings.regular)
         }
     }
 }

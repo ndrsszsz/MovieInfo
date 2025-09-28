@@ -8,13 +8,15 @@
 
 import SwiftUI
 
-struct MoviesGridView: View {
+struct MovieListView: View {
     let genre: Genre
-    @ObservedObject var viewModel: MoviesViewModel
+    @ObservedObject var viewModel: MovieListViewModel
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
-    var isTV: Bool {
+    // MARK: Privates
+
+    private var isTV: Bool {
         #if os(tvOS)
         true
         #else
@@ -22,7 +24,7 @@ struct MoviesGridView: View {
         #endif
     }
 
-    var columns: [GridItem] {
+    private var columns: [GridItem] {
         let count: Int
 
         if isTV {
@@ -36,11 +38,14 @@ struct MoviesGridView: View {
         return Array(repeating: GridItem(.flexible()), count: count)
     }
 
+    // MARK: Body
+
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.movies) { movie in
+            LazyVGrid(columns: columns, spacing: .spacings.grid) {
+                ForEach(viewModel.movies, id: \.id) { movie in
                     MovieCardView(movie: movie, isTV: isTV)
+                        .id(movie.id)
                         .onAppear {
                             triggerPaginationIfNeeded(currentMovie: movie)
                         }
@@ -79,12 +84,14 @@ struct MoviesGridView: View {
         }
     }
 
-    // MARK: - Pagination Trigger Logic
+    // MARK: Methods
+
     private func triggerPaginationIfNeeded(currentMovie: Movie) {
         guard !viewModel.isLoading else { return }
 
+        // Start prefetching early to improve scrolling experience
         if let index = viewModel.movies.firstIndex(of: currentMovie),
-           index >= viewModel.movies.count - 6 {
+           index >= viewModel.movies.count - 20 {
             HapticFeedback.trigger(.light)
             viewModel.fetchNextPage()
         }

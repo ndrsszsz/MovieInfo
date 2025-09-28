@@ -12,7 +12,7 @@ import Foundation
 class GenreCoreDataCache {
     static let shared = GenreCoreDataCache()
 
-    private let expirationInterval: TimeInterval = 3600 // 1 hour
+    private let expirationInterval: TimeInterval = .defaultExpiration
 
     func saveGenres(_ genres: [Genre], in context: NSManagedObjectContext) {
         clearGenres(in: context) // clear old cache
@@ -27,7 +27,7 @@ class GenreCoreDataCache {
         do {
             try context.save()
         } catch {
-            print("Failed to save genres to Core Data:", error)
+            print("Failed to save genres:", error)
         }
     }
 

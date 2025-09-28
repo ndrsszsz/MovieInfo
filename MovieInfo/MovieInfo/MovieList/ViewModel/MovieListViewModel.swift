@@ -10,25 +10,33 @@ import Foundation
 import Combine
 
 @MainActor
-class MoviesViewModel: ObservableObject {
+class MovieListViewModel: ObservableObject {
+    
+    // MARK: Outputs
+
     @Published private(set) var movies: [Movie] = []
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var errorMessage: String?
 
+    // MARK: Privates
+
     private(set) var totalPages = 1
     private var currentPage = 1
-
     private let genreId: Int
     private var subscriptions = Set<AnyCancellable>()
 
     // Subject to trigger fetching next page
     private let fetchNextPageSubject = PassthroughSubject<Void, Never>()
 
+    // MARK: Init
+
     init(genreId: Int) {
         self.genreId = genreId
         setupBindings()
         fetchNextPage()
     }
+
+    // MARK: Methods
 
     private func setupBindings() {
         fetchNextPageSubject
@@ -69,7 +77,7 @@ class MoviesViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] response in
                 guard let self = self else { return }
-                self.movies += response.results
+                self.movies = self.movies.appendingUnique(response.results)
                 self.totalPages = response.totalPages
                 self.currentPage += 1
                 print("Fetched \(response.results.count) movies. Total pages: \(self.totalPages)")
@@ -78,7 +86,7 @@ class MoviesViewModel: ObservableObject {
             .store(in: &subscriptions)
     }
 
-    // MARK: - Public Interface
+    // MARK: Public interface
 
     func fetchNextPage() {
         fetchNextPageSubject.send(())

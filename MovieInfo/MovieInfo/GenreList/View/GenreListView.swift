@@ -8,15 +8,17 @@
 
 import SwiftUI
 
-struct GenresView: View {
+struct GenreListView: View {
     @Environment(\.managedObjectContext) private var context
-    @StateObject private var genreViewModel = GenreViewModel()
-    @State private var moviesViewModelCache: [Int: MoviesViewModel] = [:]
+    @StateObject private var viewModel = GenreListViewModel()
+    @State private var movieListViewModelCache: [Int: MovieListViewModel] = [:]
+    
+    // MARK: Body
 
     var body: some View {
         NavigationView {
             List {
-                ForEach(genreViewModel.genres) { genre in
+                ForEach(viewModel.genres, id: \.id) { genre in
                     NavigationLink(destination: destinationView(for: genre)) {
                         Text(genre.name)
                     }
@@ -26,29 +28,25 @@ struct GenresView: View {
             .overlay(overlayView)
             .task {
                 // Only fetch if genres are empty to avoid repeated fetches
-                if genreViewModel.genres.isEmpty {
-                    genreViewModel.fetchGenres(context: context)
+                if viewModel.genres.isEmpty {
+                    viewModel.fetchGenres(context: context)
                 }
                 prepopulateMoviesViewModelCache()
             }
-            .onChange(of: genreViewModel.genres) {
+            .onChange(of: viewModel.genres) {
                 prepopulateMoviesViewModelCache()
-            }
-            .refreshable {
-                // On pull-to-refresh, fetch regardless
-                genreViewModel.fetchGenres(context: context)
             }
         }
     }
 
-    // MARK: - Overlay View (loading / error)
+    // MARK: Overlay View (loading / error)
     @ViewBuilder
     private var overlayView: some View {
-        if genreViewModel.isLoading && genreViewModel.genres.isEmpty {
+        if viewModel.isLoading && viewModel.genres.isEmpty {
             CustomSpinnerView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(.systemBackground).opacity(0.8))
-        } else if let error = genreViewModel.errorMessage, genreViewModel.genres.isEmpty {
+        } else if let error = viewModel.errorMessage, viewModel.genres.isEmpty {
             VStack(spacing: 8) {
                 Text("Failed to load genres")
                     .foregroundColor(.red)
@@ -58,7 +56,7 @@ struct GenresView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 Button("Retry") {
-                    genreViewModel.fetchGenres(context: context)
+                    viewModel.fetchGenres(context: context)
                 }
                 .padding(.top)
             }
@@ -67,20 +65,20 @@ struct GenresView: View {
         }
     }
 
-    // MARK: - Movies ViewModel Caching
+    // MARK: Movies ViewModel Caching
     private func prepopulateMoviesViewModelCache() {
-        for genre in genreViewModel.genres {
-            if moviesViewModelCache[genre.id] == nil {
-                moviesViewModelCache[genre.id] = MoviesViewModel(genreId: genre.id)
+        for genre in viewModel.genres {
+            if movieListViewModelCache[genre.id] == nil {
+                movieListViewModelCache[genre.id] = MovieListViewModel(genreId: genre.id)
             }
         }
     }
 
-    // MARK: - Navigation Destination
+    // MARK: Navigation Destination
     @ViewBuilder
     private func destinationView(for genre: Genre) -> some View {
-        if let cachedVM = moviesViewModelCache[genre.id] {
-            MoviesGridView(genre: genre, viewModel: cachedVM)
+        if let cachedVM = movieListViewModelCache[genre.id] {
+            MovieListView(genre: genre, viewModel: cachedVM)
         } else {
             CustomSpinnerView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

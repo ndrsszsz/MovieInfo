@@ -21,7 +21,7 @@ struct MovieResponse: Codable, Equatable {
     }
 }
 
-struct Movie: Codable, Identifiable, Equatable {
+struct Movie: Codable, Identifiable, Equatable, Hashable {
     let id: Int
     let title: String
     let posterPath: String?
@@ -34,5 +34,9 @@ struct Movie: Codable, Identifiable, Equatable {
     var posterURL: URL? {
         guard let path = posterPath else { return nil }
         return URL(string: "https://image.tmdb.org/t/p/w500\(path)")
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id) // Use only ID for uniqueness
     }
 }

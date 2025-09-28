@@ -13,7 +13,7 @@ struct MovieInfoApp: App {
 
     var body: some Scene {
         WindowGroup {
-            GenresView()
+            GenreListView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }

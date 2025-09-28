@@ -11,20 +11,29 @@ import CoreData
 import Combine
 
 @MainActor
-class GenreViewModel: ObservableObject {
+class GenreListViewModel: ObservableObject {
+
+    // MARK: Outputs
+
     @Published private(set) var genres: [Genre] = []
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var errorMessage: String?
+
+    // MARK: Privates
 
     private let cache = GenreCoreDataCache.shared
     private var cancellables = Set<AnyCancellable>()
 
     private let fetchTrigger = PassthroughSubject<NSManagedObjectContext, Never>()
     private var lastFetched: Date?
+    
+    // MARK: Init
 
     init() {
         setupBindings()
     }
+
+    // MARK: Methods
 
     private func setupBindings() {
         fetchTrigger
@@ -67,6 +76,7 @@ class GenreViewModel: ObservableObject {
                     self?.errorMessage = error.localizedDescription
                 }
             } receiveValue: { [weak self] genres in
+                print("Genre count: \(genres.count)")
                 self?.genres = genres
             }
             .store(in: &cancellables)
