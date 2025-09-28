@@ -95,7 +95,6 @@ struct MovieListView: View {
         // Start prefetching early to improve scrolling experience
         if let index = viewModel.movies.firstIndex(of: currentMovie),
            index >= viewModel.movies.count - 20 {
-            HapticFeedback.trigger(.light)
             viewModel.fetchNextPage()
         }
     }

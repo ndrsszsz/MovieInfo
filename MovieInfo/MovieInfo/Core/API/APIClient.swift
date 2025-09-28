@@ -9,7 +9,11 @@
 import Foundation
 import Combine
 
-class APIClient {
+protocol APIClientProtocol {
+    func requestPublisher<T: Decodable>(_ path: String, params: [String: String]) -> AnyPublisher<T, Error>
+}
+
+class APIClient: APIClientProtocol {
     static let shared = APIClient(config: TMDBConfig())
     
     private let config: APIConfig

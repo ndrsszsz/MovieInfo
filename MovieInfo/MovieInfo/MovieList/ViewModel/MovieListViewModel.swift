@@ -27,11 +27,14 @@ class MovieListViewModel: ObservableObject {
 
     // Subject to trigger fetching next page
     private let fetchNextPageSubject = PassthroughSubject<Void, Never>()
+    
+    private let apiClient: APIClientProtocol
 
     // MARK: Init
 
-    init(genreId: Int) {
+    init(genreId: Int, apiClient: APIClientProtocol = APIClient.shared) {
         self.genreId = genreId
+        self.apiClient = apiClient
         setupBindings()
         fetchNextPage()
     }
@@ -59,7 +62,7 @@ class MovieListViewModel: ObservableObject {
                     "page": "\(self.currentPage)"
                 ]
 
-                return APIClient.shared
+                return apiClient
                     .requestPublisher("/discover/movie", params: params)
                     .retry(2)  // Retry up to 2 times on failure
                     .receive(on: DispatchQueue.main)

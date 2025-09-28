@@ -21,7 +21,8 @@ class GenreListViewModel: ObservableObject {
 
     // MARK: Privates
 
-    private let cache = GenreCoreDataCache.shared
+    private let cache: GenreCoreDataCache
+    private let apiClient: APIClientProtocol
     private var cancellables = Set<AnyCancellable>()
 
     private let fetchTrigger = PassthroughSubject<NSManagedObjectContext, Never>()
@@ -29,7 +30,9 @@ class GenreListViewModel: ObservableObject {
     
     // MARK: Init
 
-    init() {
+    init(cache: GenreCoreDataCache = .shared, apiClient: APIClientProtocol = APIClient.shared) {
+        self.cache = cache
+        self.apiClient = apiClient
         setupBindings()
     }
 
@@ -60,7 +63,7 @@ class GenreListViewModel: ObservableObject {
                     }
                 }
 
-                return APIClient.shared
+                return apiClient
                     .requestPublisher("/genre/movie/list", params: ["language": "en"])
                     .map(\GenreResponse.genres)
                     .handleEvents(receiveOutput: { genres in
