@@ -10,6 +10,7 @@ Known issues:
 - Secrets should be stored elsewhere, in some secure place separated from this repo.
 - No proper logging, just prints here and there.
 - Unit test coverage is bad. There are some tests though.
+- Gitignore is not set up so there are some unnecessary files in the repo.
 
 Possible improvement ideas:
 - Prefetching next movies on the background thread on start of scrolling.
