@@ -30,7 +30,7 @@ struct MovieCardView: View {
 
 struct MovieCardView_Previews: PreviewProvider {
     static var previews: some View {
-        let sampleMovie = Movie(id: 1, title: "Sample Movie", posterPath: "/sample.jpg")
+        let sampleMovie = Movie(id: 1, title: "Sample Movie", posterPath: nil)
         Group {
             MovieCardView(movie: sampleMovie, isTV: false)
                 .previewLayout(.sizeThatFits)
